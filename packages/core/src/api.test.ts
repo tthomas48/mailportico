@@ -1,4 +1,4 @@
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -85,6 +85,32 @@ describe('TextPortico HTTP API', () => {
     const after = await fetch(`${baseUrl}/api/messages`);
     const empty = (await after.json()) as { messages: unknown[] };
     expect(empty.messages).toHaveLength(0);
+  });
+
+  it('rejects path traversal attempts via message id', async () => {
+    const escapedPath = join(dataDir, '..', 'textportico-escape-target.json');
+    await writeFile(
+      escapedPath,
+      JSON.stringify({
+        id: 'textportico-escape-target',
+        direction: 'outbound',
+        from: '+10000000001',
+        to: '+10000000002',
+        body: 'sensitive',
+        createdAt: new Date().toISOString(),
+        threadId: 'x',
+      }),
+      'utf8',
+    );
+
+    const getRes = await fetch(`${baseUrl}/api/messages/..%2Ftextportico-escape-target`);
+    expect(getRes.status).toBe(404);
+
+    const delRes = await fetch(`${baseUrl}/api/messages/..%2Ftextportico-escape-target`, {
+      method: 'DELETE',
+    });
+    expect(delRes.status).toBe(404);
+    await expect(readFile(escapedPath, 'utf8')).resolves.toContain('sensitive');
   });
 });
 

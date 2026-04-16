@@ -1,5 +1,5 @@
 import { mkdir, readdir, readFile, rm, unlink, writeFile, rename } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 import type { Message, MessageListFilter } from './types.js';
 
 export interface MessageStore {
@@ -13,13 +13,24 @@ export interface MessageStore {
 export class FileMessageStore implements MessageStore {
   constructor(private readonly dataDir: string) {}
 
-  private pathFor(id: string): string {
-    return join(this.dataDir, `${id}.json`);
+  private pathFor(id: string): string | undefined {
+    if (!isSafeMessageId(id)) {
+      return undefined;
+    }
+    const baseDir = resolve(this.dataDir);
+    const candidate = resolve(baseDir, `${id}.json`);
+    if (candidate !== baseDir && !candidate.startsWith(`${baseDir}${sep}`)) {
+      return undefined;
+    }
+    return candidate;
   }
 
   async save(message: Message): Promise<void> {
     await mkdir(this.dataDir, { recursive: true });
     const finalPath = this.pathFor(message.id);
+    if (!finalPath) {
+      throw new Error('Invalid message id');
+    }
     const tmpPath = `${finalPath}.tmp`;
     const body = JSON.stringify(message, null, 2);
     await writeFile(tmpPath, body, 'utf8');
@@ -27,8 +38,12 @@ export class FileMessageStore implements MessageStore {
   }
 
   async get(id: string): Promise<Message | undefined> {
+    const path = this.pathFor(id);
+    if (!path) {
+      return undefined;
+    }
     try {
-      const raw = await readFile(this.pathFor(id), 'utf8');
+      const raw = await readFile(path, 'utf8');
       return JSON.parse(raw) as Message;
     } catch {
       return undefined;
@@ -64,8 +79,12 @@ export class FileMessageStore implements MessageStore {
   }
 
   async delete(id: string): Promise<boolean> {
+    const path = this.pathFor(id);
+    if (!path) {
+      return false;
+    }
     try {
-      await unlink(this.pathFor(id));
+      await unlink(path);
       return true;
     } catch {
       return false;
@@ -95,4 +114,8 @@ export class FileMessageStore implements MessageStore {
 
 function normalizeForFilter(s: string): string {
   return s.trim().replace(/\s+/g, '');
+}
+
+function isSafeMessageId(id: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
 }
