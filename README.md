@@ -35,6 +35,12 @@ npm install @textportico/provider-twilio # optional Twilio-backed sender
 
 **Maintainers:** bump the same **`version`** in [packages/core/package.json](packages/core/package.json) and [packages/provider-twilio/package.json](packages/provider-twilio/package.json), tag, then create a **GitHub Release** to trigger [.github/workflows/publish-npm.yml](.github/workflows/publish-npm.yml). Add an npm **Automation** access token as the repository secret **`NPM_TOKEN`** (used as `NODE_AUTH_TOKEN` for `actions/setup-node`).
 
+The workspace root is **`"private": true`**, so **`pnpm publish` by itself will always fail** (npm refuses to publish the root). Use the filtered script after **`npm login`** and **Node.js ≥ 22.12** (see `engines` in [package.json](package.json)):
+
+```bash
+pnpm run publish:packages
+```
+
 ## Quick start (programmatic)
 
 Embed the dev server in tests or local tooling. Integration with your stack is **HTTP POST to your API** (`notifyUrl`), not in-process Node events—so downstream code can **enqueue to a message bus** the same way it would in staging.

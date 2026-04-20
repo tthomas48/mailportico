@@ -10,7 +10,8 @@
     "dev": "pnpm --filter @textportico/core dev",
     "check": "pnpm exec vp check",
     "test": "pnpm exec vp test",
-    "fmt": "pnpm exec vp fmt"
+    "fmt": "pnpm exec vp fmt",
+    "publish:packages": "pnpm run build && pnpm publish --filter @textportico/core --filter @textportico/provider-twilio --access public --no-git-checks"
   },
   "devDependencies": {
     "@types/node": "^22.14.1",
