@@ -17,13 +17,14 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          # Trusted publishing requires Node ≥ 22.14 and npm ≥ 11.5.1 (npm docs).
-          node-version: '22.14'
+          # npm trusted publishing needs Node ≥ 22.14 + npm ≥ 11.5.1; Node 22.14.x
+          # fails vite-plus loading root vite.config.ts (TS). Use current LTS line.
+          node-version: '24'
           registry-url: https://registry.npmjs.org
 
       - uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: '22.14'
+          node-version: '24'
           cache: true
 
       - name: Install

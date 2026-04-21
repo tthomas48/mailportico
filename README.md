@@ -10,7 +10,7 @@ Text Portico is a **development tool** inspired by [MailDev](https://github.com/
 
 ## Prerequisites
 
-- **Node.js** ≥ 22.14 (see `engines` in the root [package.json](package.json); this matches npm **trusted publishing** requirements for CI). For local development, set **`NODE_ENV=development`** when running the core server (the `pnpm run dev` script does this for `@textportico/core`).
+- **Node.js** ≥ 22.14 (see `engines` in the root [package.json](package.json); **24** is used in GitHub Actions so **vite-plus** can load the root `vite.config.ts`). For local development, set **`NODE_ENV=development`** when running the core server (the `pnpm run dev` script does this for `@textportico/core`).
 - **pnpm** (Corepack: `corepack enable` then use the repo’s `packageManager` field).
 - **Vite+** local CLI: `pnpm exec vp …` from the repo root (the `vite-plus` package ships the `vp` binary). For global install, see [viteplus.dev](https://viteplus.dev/).
 
@@ -37,7 +37,7 @@ npm install @textportico/provider-twilio # optional Twilio-backed sender
 
 #### Trusted publishing (recommended)
 
-Publishing from GitHub Actions uses **[npm trusted publishing (OIDC)](https://docs.npmjs.com/trusted-publishers)** so you do **not** need a long-lived **`NPM_TOKEN`** secret for releases. Requirements: **GitHub-hosted runners** (not self-hosted), workflow permission **`id-token: write`** (already set in the publish workflow), **Node ≥ 22.14** and **npm ≥ 11.5.1** on the publish job.
+Publishing from GitHub Actions uses **[npm trusted publishing (OIDC)](https://docs.npmjs.com/trusted-publishers)** so you do **not** need a long-lived **`NPM_TOKEN`** secret for releases. Requirements: **GitHub-hosted runners** (not self-hosted), workflow permission **`id-token: write`** (already set in the publish workflow), **Node 24** (publish job; avoids Node 22.14.x + vite-plus TS config issue) and **npm ≥ 11.5.1** on the publish job.
 
 For **each** published package, on [npmjs.com](https://www.npmjs.com/) open **Package → Settings → Trusted publishing**, choose **GitHub Actions**, and enter fields **exactly** (they are case-sensitive):
 
