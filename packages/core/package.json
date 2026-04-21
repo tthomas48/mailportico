@@ -1,6 +1,6 @@
 {
   "name": "@textportico/core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Text Portico core — HTTP dev server, file-backed messages, notify POST",
   "homepage": "https://github.com/tthomas48/textportico#readme",
   "bugs": {
