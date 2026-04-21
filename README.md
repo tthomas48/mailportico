@@ -10,7 +10,7 @@ Text Portico is a **development tool** inspired by [MailDev](https://github.com/
 
 ## Prerequisites
 
-- **Node.js** ≥ 22.12 (see `engines` in the root [package.json](package.json)). For local development, set **`NODE_ENV=development`** when running the core server (the `pnpm run dev` script does this for `@textportico/core`).
+- **Node.js** ≥ 22.14 (see `engines` in the root [package.json](package.json); this matches npm **trusted publishing** requirements for CI). For local development, set **`NODE_ENV=development`** when running the core server (the `pnpm run dev` script does this for `@textportico/core`).
 - **pnpm** (Corepack: `corepack enable` then use the repo’s `packageManager` field).
 - **Vite+** local CLI: `pnpm exec vp …` from the repo root (the `vite-plus` package ships the `vp` binary). For global install, see [viteplus.dev](https://viteplus.dev/).
 
@@ -33,9 +33,29 @@ npm install @textportico/core
 npm install @textportico/provider-twilio # optional Twilio-backed sender
 ```
 
-**Maintainers:** bump the same **`version`** in [packages/core/package.json](packages/core/package.json) and [packages/provider-twilio/package.json](packages/provider-twilio/package.json), tag, then create a **GitHub Release** to trigger [.github/workflows/publish-npm.yml](.github/workflows/publish-npm.yml). Add an npm **Automation** access token as the repository secret **`NPM_TOKEN`** (used as `NODE_AUTH_TOKEN` for `actions/setup-node`).
+**Maintainers:** bump the same **`version`** in [packages/core/package.json](packages/core/package.json) and [packages/provider-twilio/package.json](packages/provider-twilio/package.json), tag, then create a **GitHub Release** to trigger [.github/workflows/publish-npm.yml](.github/workflows/publish-npm.yml).
 
-The workspace root is **`"private": true`**, so **`pnpm publish` by itself will always fail** (npm refuses to publish the root). Use the filtered script after **`npm login`** and **Node.js ≥ 22.12** (see `engines` in [package.json](package.json)):
+#### Trusted publishing (recommended)
+
+Publishing from GitHub Actions uses **[npm trusted publishing (OIDC)](https://docs.npmjs.com/trusted-publishers)** so you do **not** need a long-lived **`NPM_TOKEN`** secret for releases. Requirements: **GitHub-hosted runners** (not self-hosted), workflow permission **`id-token: write`** (already set in the publish workflow), **Node ≥ 22.14** and **npm ≥ 11.5.1** on the publish job.
+
+For **each** published package, on [npmjs.com](https://www.npmjs.com/) open **Package → Settings → Trusted publishing**, choose **GitHub Actions**, and enter fields **exactly** (they are case-sensitive):
+
+| Field             | Value for this repo                                                                                                                                                                                                                                       |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Repository        | `tthomas48/textportico` (owner/repo)                                                                                                                                                                                                                      |
+| Workflow filename | `publish-npm.yml` (filename only, including extension)                                                                                                                                                                                                    |
+| Environment       | Leave empty **unless** you add a named [GitHub Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) to the publish job; if you set one on GitHub, use the **same name** on npm. |
+
+Repeat for **`@textportico/core`** and **`@textportico/provider-twilio`**. Each package allows **one** trusted publisher configuration; both may reference the **same** workflow file.
+
+`repository.url` in each published `package.json` must match this GitHub repo (already set to `https://github.com/tthomas48/textportico.git`).
+
+After OIDC publishes succeed, you can tighten **Package → Publishing access** (for example disallow tokens) per npm’s guidance.
+
+#### Manual / token publish
+
+The workspace root is **`"private": true`**, so **`pnpm publish` by itself will always fail** (npm refuses to publish the root). For publishes from your laptop, use the filtered script after **`npm login`** (or a granular token) and **Node.js** matching `engines` in [package.json](package.json):
 
 ```bash
 pnpm run publish:packages
@@ -129,7 +149,7 @@ Bind to **127.0.0.1** by default. The dev server and REST API have **no authenti
 ## CI
 
 - [.github/workflows/ci.yml](.github/workflows/ci.yml): install, check, build, test on push and pull requests (uses [voidzero-dev/setup-vp](https://github.com/voidzero-dev/setup-vp)).
-- [.github/workflows/publish-npm.yml](.github/workflows/publish-npm.yml): on **published** GitHub Releases, check, build, test, then publish **`@textportico/core`** and **`@textportico/provider-twilio`** to the public npm registry (requires secret **`NPM_TOKEN`**).
+- [.github/workflows/publish-npm.yml](.github/workflows/publish-npm.yml): on **published** GitHub Releases, check, build, test, then publish **`@textportico/core`** and **`@textportico/provider-twilio`** via **npm trusted publishing (OIDC)**; no **`NPM_TOKEN`** secret is required once each package’s trusted publisher is configured on npmjs.com (see **Trusted publishing** above).
 
 ## License
 

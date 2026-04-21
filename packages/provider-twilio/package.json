@@ -2,7 +2,15 @@
   "name": "@textportico/provider-twilio",
   "version": "0.0.1",
   "description": "Optional Twilio SMS sender for Text Portico consumers",
+  "homepage": "https://github.com/tthomas48/textportico#readme",
+  "bugs": {
+    "url": "https://github.com/tthomas48/textportico/issues"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tthomas48/textportico.git"
+  },
   "files": [
     "dist"
   ],

@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write # npm trusted publishing (OIDC) — see README
     steps:
       - uses: actions/checkout@v4
 
@@ -16,12 +17,13 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          # Trusted publishing requires Node ≥ 22.14 and npm ≥ 11.5.1 (npm docs).
+          node-version: '22.14'
           registry-url: https://registry.npmjs.org
 
       - uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: '22'
+          node-version: '22.14'
           cache: true
 
       - name: Install
@@ -36,9 +38,10 @@ jobs:
       - name: Test
         run: pnpm exec vp test -- --run
 
+      - name: Ensure npm supports trusted publishing
+        run: npm install -g "npm@^11.5.1"
+
       - name: Publish to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: >-
           pnpm publish
           --filter @textportico/core
