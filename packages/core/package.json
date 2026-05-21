@@ -31,13 +31,13 @@
     "dev": "NODE_ENV=development tsx watch src/cli-dev.ts"
   },
   "dependencies": {
-    "express": "^5.1.0",
-    "ws": "^8.18.3"
+    "express": "^5.2.1",
+    "ws": "^8.20.1"
   },
   "devDependencies": {
-    "@types/express": "^5.0.1",
+    "@types/express": "^5.0.6",
     "@types/ws": "^8.18.1",
-    "tsx": "^4.19.3",
-    "typescript": "^5.8.3"
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3"
   }
 }

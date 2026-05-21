@@ -14,10 +14,10 @@
     "publish:packages": "pnpm run build && pnpm publish --filter @textportico/core --filter @textportico/provider-twilio --access public --no-git-checks"
   },
   "devDependencies": {
-    "@types/node": "^22.14.1",
-    "typescript": "^5.8.3",
-    "vite-plus": "0.1.18",
-    "vitest": "^3.2.4"
+    "@types/node": "^25.9.1",
+    "typescript": "^6.0.3",
+    "vite-plus": "0.1.22",
+    "vitest": "^4.1.7"
   },
   "engines": {
     "node": ">=22.14.0"
