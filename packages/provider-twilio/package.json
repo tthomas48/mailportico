@@ -1,6 +1,6 @@
 {
   "name": "@textportico/provider-twilio",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Optional Twilio SMS sender for Text Portico consumers",
   "homepage": "https://github.com/tthomas48/textportico#readme",
   "bugs": {
@@ -34,7 +34,7 @@
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "twilio": "^5.0.0"
+    "twilio": "^6.0.0"
   },
   "peerDependenciesMeta": {
     "twilio": {
